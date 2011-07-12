@@ -13,7 +13,7 @@ class User {
     def afterInsert = {
         User.withNewSession {
             Account account = new Account(balance: 800, user: this)
-            account.save()
+            account.save(flush: true)
             this.account = account
         }
     }

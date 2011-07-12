@@ -9,4 +9,8 @@ class Account {
 
     static constraints = {
     }
+
+    Boolean hasBalance(BigDecimal value) {
+        return (balance > value)
+    }
 }

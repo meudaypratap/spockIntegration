@@ -4,6 +4,8 @@ class TransactionController {
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
+    def transactionService
+
     def index = {
         redirect(action: "list", params: params)
     }
@@ -21,11 +23,13 @@ class TransactionController {
 
     def save = {
         def transactionInstance = new Transaction(params)
-        if (transactionInstance.save(flush: true)) {
+        try {
+            transactionInstance = transactionService.saveTransaction(transactionInstance.account, transactionInstance.amount, transactionInstance.type)
             flash.message = "${message(code: 'default.created.message', args: [message(code: 'transaction.label', default: 'Transaction'), transactionInstance.id])}"
             redirect(action: "show", id: transactionInstance.id)
         }
-        else {
+        catch (RuntimeException rte) {
+            flash.message = rte.message
             render(view: "create", model: [transactionInstance: transactionInstance])
         }
     }
@@ -58,7 +62,7 @@ class TransactionController {
             if (params.version) {
                 def version = params.version.toLong()
                 if (transactionInstance.version > version) {
-                    
+
                     transactionInstance.errors.rejectValue("version", "default.optimistic.locking.failure", [message(code: 'transaction.label', default: 'Transaction')] as Object[], "Another user has updated this Transaction while you were editing")
                     render(view: "edit", model: [transactionInstance: transactionInstance])
                     return

@@ -1,5 +1,4 @@
-package spockintegration
-
+package spockintegration;
 public enum TransactionType {
 
     Dr("Debit"), Cr("Credit")

@@ -37,14 +37,61 @@ public class UserControllerIntegrationSpec extends IntegrationSpec {
 
     def "user not created for null username"() {
         setup:
+        Integer userCountBefore = User.count()
+        Integer accountCountBefore = Account.count()
         controller.params.password = "Test"
 
         when:
         controller.save()
 
         then:
+        (User.count() - userCountBefore) == 0
+        (Account.count() - accountCountBefore) == 0
         renderArgs.view == "create"
     }
 
+    def "test json response for user"() {
+        setup:
+        User user = new User(password: "Test", userName: "Test")
+        user.save(flush: true)
+
+        when:
+        controller.params.id = user.id
+        controller.showJson()
+
+        then:
+        controller.response.contentAsString.contains('"class":"spockintegration.User"')
+
+    }
+
+    def "test xml response for user"() {
+        setup:
+        User user = new User(password: "Test", userName: "Test")
+        user.save(flush: true)
+
+        when:
+        controller.params.id = user.id
+        controller.showXml()
+
+        println controller.response.properties
+
+        then:
+        controller.response.contentAsString.contains('''<password>Test</password><userName>Test</userName></user>''')
+
+    }
+
+    def "test string response for user"() {
+        setup:
+        User user = new User(password: "Test", userName: "Test")
+        user.save(flush: true)
+
+        when:
+        controller.params.id = user.id
+        controller.showName()
+
+        then:
+        controller.response.contentAsString == 'Test'
+
+    }
 
 }

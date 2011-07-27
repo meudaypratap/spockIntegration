@@ -8,6 +8,12 @@ class TransactionService {
         if (account.hasBalance(amount)) {
             Transaction transaction = new Transaction(amount: amount, type: type, account: account)
             account.addToTransactions(transaction)
+            if (type == TransactionType.Dr) {
+                account.balance = account.balance - amount
+            }
+            else {
+                account.balance = account.balance + amount
+            }
             return transaction
         }
         else {

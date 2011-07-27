@@ -1,5 +1,8 @@
 package spockintegration
 
+import grails.converters.JSON
+import grails.converters.XML
+
 class UserController {
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
@@ -41,6 +44,36 @@ class UserController {
         }
     }
 
+    def showJson = {
+        def userInstance = User.get(params.id)
+        if (!userInstance) {
+            [message: "Not found"] as JSON
+        }
+        else {
+            render userInstance as JSON
+        }
+    }
+
+    def showXml = {
+        def userInstance = User.get(params.id)
+        if (!userInstance) {
+            [message: "Not found"] as XML
+        }
+        else {
+            render userInstance as XML
+        }
+    }
+
+    def showName = {
+        def userInstance = User.get(params.id)
+        if (!userInstance) {
+            render(text: "Not Found")
+        }
+        else {
+            render userInstance.userName
+        }
+    }
+
     def edit = {
         def userInstance = User.get(params.id)
         if (!userInstance) {
@@ -58,7 +91,7 @@ class UserController {
             if (params.version) {
                 def version = params.version.toLong()
                 if (userInstance.version > version) {
-                    
+
                     userInstance.errors.rejectValue("version", "default.optimistic.locking.failure", [message(code: 'user.label', default: 'User')] as Object[], "Another user has updated this User while you were editing")
                     render(view: "edit", model: [userInstance: userInstance])
                     return

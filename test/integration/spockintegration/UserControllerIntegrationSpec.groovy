@@ -61,23 +61,6 @@ public class UserControllerIntegrationSpec extends IntegrationSpec {
 
         then:
         controller.response.contentAsString.contains('"class":"spockintegration.User"')
-
-    }
-
-    def "test xml response for user"() {     //EXERCISE
-        setup:
-        User user = new User(password: "Test", userName: "Test")
-        user.save(flush: true)
-
-        when:
-        controller.params.id = user.id
-        controller.showXml()
-
-        println controller.response.properties
-
-        then:
-        controller.response.contentAsString.contains('''<password>Test</password><userName>Test</userName></user>''')
-
     }
 
     def "test string response for user"() {
@@ -91,6 +74,20 @@ public class UserControllerIntegrationSpec extends IntegrationSpec {
 
         then:
         controller.response.contentAsString == 'Test'
+
+    }
+
+    def "test xml response for user"() {     //EXERCISE
+        setup:
+        User user = new User(password: "Test", userName: "Test")
+        user.save(flush: true)
+
+        when:
+        controller.params.id = user.id
+        controller.showXml()
+
+        then:
+        controller.response.contentAsString.contains('''<password>Test</password><userName>Test</userName></user>''')
 
     }
 

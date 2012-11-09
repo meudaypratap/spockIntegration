@@ -96,4 +96,26 @@ public class TransactionServiceIntegrationSpec extends IntegrationSpec {
         3   | 1000              | 800               | 800
     }
 
+    //Exercise
+    @Unroll('#sno ..loanAmount')
+    def "grant loan on the basis of available balance"() {
+        when:
+        ResponseDTO responseDTO = transactionService.grantLoan(user.account, loanAmount)
+
+        then:
+        user.account.balance == accountBalance
+        Loan.count() == loanCount
+        responseDTO.status == responseStatus
+        responseDTO.message == responseMessage
+
+        where:
+        sno | loanAmount | responseStatus | responseMessage                              | accountBalance | loanCount
+        1   | 799        | true           | "Loan granted"                               | 1599           | 1
+        2   | 800        | false          | "Loan denied due to lack of account balance" | 800            | 0
+        3   | 801        | false          | "Loan denied due to lack of account balance" | 800            | 0
+        4   | 1          | true           | "Loan granted"                               | 801            | 1
+        5   | 500        | true           | "Loan granted"                               | 1300           | 1
+    }
+
+
 }

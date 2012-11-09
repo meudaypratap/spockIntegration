@@ -2,20 +2,17 @@ package spockintegration;
 
 
 import grails.plugin.spock.IntegrationSpec
-import spock.lang.Ignore
 import spock.lang.Unroll
 
 public class TransactionServiceIntegrationSpec extends IntegrationSpec {
 
     def transactionService
 
-    @Ignore
     @Unroll('#sno ..Balance : #transactionAmount, #transactionType')
     def "balance of the user changes if the transaction is created for the amount less than the balance"() {
         setup:
         User user = new User(userName: "Test", password: "Test")
         user.save(flush: true)
-        BigDecimal balance = user.account.balance
 
         when:
         transactionService.saveTransaction(user.account, transactionAmount, transactionType)

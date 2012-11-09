@@ -21,8 +21,8 @@ class TransactionController {
         return [transactionInstance: transactionInstance]
     }
 
-    def save = {
-        def transactionInstance = new Transaction(params)
+    def save(TransactionalCO co) {
+        def transactionInstance = new Transaction(co.properties)
         try {
             transactionInstance = transactionService.saveTransaction(transactionInstance.account, transactionInstance.amount, transactionInstance.type)
             flash.message = "${message(code: 'default.created.message', args: [message(code: 'transaction.label', default: 'Transaction'), transactionInstance.id])}"
@@ -101,4 +101,10 @@ class TransactionController {
             redirect(action: "list")
         }
     }
+}
+
+class TransactionalCO {
+    BigDecimal amount
+    TransactionType type
+    Account account
 }

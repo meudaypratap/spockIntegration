@@ -20,4 +20,9 @@ class TransactionService {
             throw new RuntimeException("Not enough balance to make this transaction")
         }
     }
+
+    Transaction transferAmount(Account transferer, Account transferee, BigDecimal amount) {
+        saveTransaction(transferer, amount, TransactionType.Dr)
+        saveTransaction(transferee, amount, TransactionType.Cr)
+    }
 }

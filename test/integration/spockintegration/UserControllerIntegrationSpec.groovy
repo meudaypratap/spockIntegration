@@ -64,7 +64,7 @@ public class UserControllerIntegrationSpec extends IntegrationSpec {
 
     }
 
-    def "test xml response for user"() {
+    def "test xml response for user"() {     //EXERCISE
         setup:
         User user = new User(password: "Test", userName: "Test")
         user.save(flush: true)

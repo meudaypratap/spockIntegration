@@ -7,13 +7,14 @@ import spock.lang.Unroll
 public class TransactionServiceIntegrationSpec extends IntegrationSpec {
 
     def transactionService
+    User user
+
+    def setup() {
+        user = new User(userName: "Test", password: "Test").save(flush: true)
+    }
 
     @Unroll('#sno ..Balance : #transactionAmount, #transactionType')
     def "balance of the user changes if the transaction is created for the amount less than the balance"() {
-        setup:
-        User user = new User(userName: "Test", password: "Test")
-        user.save(flush: true)
-
         when:
         transactionService.saveTransaction(user.account, transactionAmount, transactionType)
 
@@ -32,10 +33,6 @@ public class TransactionServiceIntegrationSpec extends IntegrationSpec {
 
     @Unroll('#sno ..Balance : #transactionAmount, #transactionType')
     def "exception is thrown for transaction amount more than 800 "() {
-        setup:
-        User user = new User(userName: "Test", password: "Test")
-        user.save(flush: true)
-
         when:
         transactionService.saveTransaction(user.account, 1000, transactionType)
 
@@ -48,6 +45,55 @@ public class TransactionServiceIntegrationSpec extends IntegrationSpec {
         sno | transactionType
         1   | TransactionType.Dr
         2   | TransactionType.Cr
+    }
+
+    //Exercise
+    @Unroll('#sno ..transactionAmount : #transfererBalance, #transfereeBalance')
+    def "balance changes for both accounts when transferred amount is less than the balance limit for both accounts"() {
+        setup:
+        User transferer = user
+        User transferee = new User(userName: "Test2", password: "Test").save(flush: true)
+
+        when:
+        transactionService.transferAmount(transferer.account, transferee.account, transactionAmount)
+
+        then:
+        transferer.account.balance == transfererBalance
+        transferee.account.balance == transfereeBalance
+        transferer.account.transactions.toList().size() == 1
+        transferee.account.transactions.toList().size() == 1
+        Transaction.list().size() == 2
+        notThrown(RuntimeException)
+
+        where:
+        sno | transactionAmount | transfererBalance | transfereeBalance
+        1   | 200               | 600               | 1000
+        2   | 202.50            | 597.50            | 1002.50
+        3   | 0                 | 800               | 800
+    }
+
+    //Exercise
+    @Unroll('#sno ..transactionAmount : #transfererBalance, #transfereeBalance')
+    def "exception is thrown when amount for transfer is more than 800 "() {
+        setup:
+        User transferer = user
+        User transferee = new User(userName: "Test2", password: "Test").save(flush: true)
+
+        when:
+        transactionService.transferAmount(transferer.account, transferee.account, transactionAmount)
+
+        then:
+        transferer.account.balance == transfererBalance
+        transferee.account.balance == transfereeBalance
+        transferer.account.transactions == null
+        transferee.account.transactions == null
+        Transaction.count() == 0
+        thrown(RuntimeException)
+        where:
+        sno | transactionAmount | transfererBalance | transfereeBalance
+        1   | 800.1             | 800               | 800
+        2   | 801               | 800               | 800
+        3   | 1000              | 800               | 800
     }
 
 }

@@ -1,5 +1,6 @@
-package spockintegration;
-import grails.plugin.spock.IntegrationSpec
+package spockintegration
+
+import grails.plugin.spock.IntegrationSpec;
 
 public class TransactionControllerIntegrationSpec extends IntegrationSpec {
 
@@ -25,7 +26,6 @@ public class TransactionControllerIntegrationSpec extends IntegrationSpec {
         then:
         Transaction.count() == 1
         user.account.transactions.toList().size() == 1
-
     }
 
     def "transaction is not created because of insufficient balance"() {
@@ -44,7 +44,6 @@ public class TransactionControllerIntegrationSpec extends IntegrationSpec {
         controller.flash.message == "Not enough balance to make this transaction"
         Transaction.count() == 0
         !user.account.transactions
-
     }
 
 }
